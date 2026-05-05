@@ -1,0 +1,20 @@
+# Maven target directories
+**/target/
+
+# Eclipse / IntelliJ / VS Code files
+*.iml
+*.ipr
+*.iws
+.vscode/
+.idea/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
