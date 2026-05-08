@@ -20,60 +20,157 @@ Proyecto Java Spring Boot con arquitectura de microservicios y gateway.
 - Configuración local con H2 para pruebas rápidas
 - Estructura multi-módulo Maven para separar cada componente
 
-## Ejecución local
+## Ejecución local y pruebas
 
-1. Abrir el proyecto en el directorio raíz `d:\proyectos\java 2prueba`.
-2. Ejecutar el servidor Eureka:
+### Paso 1: Compilar todo el proyecto
 
-```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl eureka-server spring-boot:run
-```
-
-3. En otra terminal ejecutar el Gateway:
+Abre una terminal en la raíz del proyecto `d:\proyectos\java 2prueba` y ejecuta:
 
 ```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl api-gateway spring-boot:run
+mvn clean compile
 ```
 
-4. Ejecutar los microservicios:
+### Paso 2: Iniciar Eureka Server
+
+Abre una nueva terminal y ejecuta:
 
 ```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl auth-service,project-service,resource-service,collab-service spring-boot:run
+cd eureka-server
+mvn spring-boot:run
 ```
 
-Si `mvn` está en el PATH, puede usarse simplemente `mvn` en lugar de la ruta completa.
+Eureka estará disponible en `http://localhost:8761`.
+
+### Paso 3: Iniciar API Gateway
+
+Abre otra terminal y ejecuta:
+
+```powershell
+cd api-gateway
+mvn spring-boot:run
+```
+
+El Gateway se conectará automáticamente a Eureka y quedará disponible en `http://localhost:8080`.
+
+### Paso 4: Iniciar Auth Service
+
+Abre otra terminal y ejecuta:
+
+```powershell
+cd auth-service
+mvn spring-boot:run
+```
+
+**Correcciones aplicadas**:
+- La entidad `User` se mapea a la tabla `app_user` para evitar que H2 rechace el nombre reservado `user`.
+- Se habilitó `spring.main.allow-circular-references: true` para permitir la configuración de seguridad actual.
+- Se desactivó la consola H2 para evitar conflictos con el servlet HTTP.
+
+Auth Service quedará disponible en `http://localhost:9001`.
+
+### Paso 5: Iniciar Project Service
+
+Abre otra terminal y ejecuta:
+
+```powershell
+cd project-service
+mvn spring-boot:run
+```
+
+### Paso 6: Iniciar Resource Service
+
+Abre otra terminal y ejecuta:
+
+```powershell
+cd resource-service
+mvn spring-boot:run
+```
+
+### Paso 7: Iniciar Collab Service
+
+Abre otra terminal y ejecuta:
+
+```powershell
+cd collab-service
+mvn spring-boot:run
+```
+
+## Verificación
+
+### 1. Verificar Eureka Dashboard
+
+Abre el navegador en:
+
+```text
+http://localhost:8761
+```
+
+Debes ver registrados los servicios:
+- EUREKA-SERVER
+- API-GATEWAY
+- AUTH-SERVICE
+- PROJECT-SERVICE
+- RESOURCE-SERVICE
+- COLLAB-SERVICE
+
+### 2. Verificar registro desde la API de Eureka
+
+```powershell
+curl -X GET http://localhost:8761/eureka/apps
+```
+
+### 3. Prueba de health de Auth Service directo
+
+```powershell
+curl -X GET http://localhost:9001/actuator/health
+```
+
+### 4. Prueba de health de Auth Service vía Gateway
+
+```powershell
+curl -X GET http://localhost:8080/auth/actuator/health
+```
+
+### 5. Prueba de otros servicios vía Gateway
+
+```powershell
+curl -X GET http://localhost:8080/projects/actuator/health
+curl -X GET http://localhost:8080/resources/actuator/health
+curl -X GET http://localhost:8080/collab/actuator/health
+```
+
+### 6. Prueba de flujo básico de Auth
+
+Registrar usuario:
+
+```powershell
+curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/json" -d '{"username":"user1","password":"pass"}'
+```
+
+Iniciar sesión:
+
+```powershell
+curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d '{"username":"user1","password":"pass"}'
+```
+
+Usar token para acceder a un servicio protegido:
+
+```powershell
+curl http://localhost:8080/projects -H "Authorization: Bearer <TOKEN>"
+```
 
 ## Endpoints clave
 
 - `http://localhost:8761/` -> Interfaz de Eureka
+- `http://localhost:8080/` -> API Gateway
 - `http://localhost:8080/auth/login` -> Login a través del Gateway
 - `http://localhost:8080/auth/register` -> Registro de usuario
-- `http://localhost:8080/projects` -> Proyecto protegido a través del Gateway
-- `http://localhost:8080/resources` -> Recursos protegidos a través del Gateway
-- `http://localhost:8080/collabs` -> Colaboraciones protegidas a través del Gateway
-
-## Prueba de flujo esencial
-
-1. Registrar un usuario:
-
-```bash
-curl -X POST http://localhost:8080/auth/register -H "Content-Type: application/json" -d '{"username":"user1","password":"pass"}'
-```
-
-2. Iniciar sesión y obtener token:
-
-```bash
-curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/json" -d '{"username":"user1","password":"pass"}'
-```
-
-3. Usar el token en headers para acceder a servicios protegidos:
-
-```bash
-curl http://localhost:8080/projects -H "Authorization: Bearer <TOKEN>"
-```
+- `http://localhost:8080/projects` -> Project Service a través del Gateway
+- `http://localhost:8080/resources` -> Resource Service a través del Gateway
+- `http://localhost:8080/collab` -> Collab Service a través del Gateway
 
 ## Notas finales
 
 - El proyecto usa `H2` como base de datos en memoria para pruebas locales.
-- Para producción se puede cambiar a `MySQL`, `PostgreSQL` o `AWS RDS` en los `application.yml` de los servicios.
-- Las rutas del gateway están configuradas para usar el nombre de servicio registrado en Eureka.
+- Para producción se puede cambiar a `MySQL`, `PostgreSQL` o `AWS RDS` en los `application.yml`.
+- El gateway enruta mediante nombres de servicio registrados en Eureka.
