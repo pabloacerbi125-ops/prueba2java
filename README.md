@@ -26,19 +26,22 @@ Proyecto Java Spring Boot con arquitectura de microservicios y gateway.
 2. Ejecutar el servidor Eureka:
 
 ```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl eureka-server spring-boot:run
+.\mvnw.cmd -pl eureka-server spring-boot:run
 ```
 
 3. En otra terminal ejecutar el Gateway:
 
 ```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl api-gateway spring-boot:run
+.\mvnw.cmd -pl api-gateway spring-boot:run
 ```
 
-4. Ejecutar los microservicios:
+4. Ejecutar los microservicios en terminales distintas:
 
 ```powershell
-C:\Users\pabli\tools\apache-maven-3.9.9\bin\mvn.cmd -pl auth-service,project-service,resource-service,collab-service spring-boot:run
+.\mvnw.cmd -pl auth-service spring-boot:run
+.\mvnw.cmd -pl project-service spring-boot:run
+.\mvnw.cmd -pl resource-service spring-boot:run
+.\mvnw.cmd -pl collab-service spring-boot:run
 ```
 
 Si `mvn` está en el PATH, puede usarse simplemente `mvn` en lugar de la ruta completa.
