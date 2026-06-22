@@ -1,0 +1,39 @@
+name: Build and push Docker images
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [auth-service, project-service, collab-service, resource-service, api-gateway, eureka-server]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          file: ./prueba2java/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/prueba2java-${{ matrix.service }}:${{ github.sha }}
+          platforms: linux/amd64
+
+      - name: Write image name to output
+        run: echo "image=ghcr.io/${{ github.repository_owner }}/prueba2java-${{ matrix.service }}:${{ github.sha }}" >> $GITHUB_OUTPUT
