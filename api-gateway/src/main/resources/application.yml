@@ -12,21 +12,34 @@ spring:
         - id: auth-service
           uri: lb://AUTH-SERVICE
           predicates:
-            - Path=/auth/**
+            - Path=/auth-service/**
+          filters:
+            - StripPrefix=1
         - id: project-service
           uri: lb://PROJECT-SERVICE
           predicates:
-            - Path=/projects/**
+            - Path=/project-service/**
+          filters:
+            - StripPrefix=1
         - id: resource-service
           uri: lb://RESOURCE-SERVICE
           predicates:
-            - Path=/resources/**
+            - Path=/resource-service/**
+          filters:
+            - StripPrefix=1
         - id: collab-service
           uri: lb://COLLAB-SERVICE
           predicates:
-            - Path=/collabs/**
+            - Path=/collab-service/**
+          filters:
+            - StripPrefix=1
 
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.server: DEBUG
