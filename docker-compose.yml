@@ -1,7 +1,10 @@
-version: '3.9'
+version: "3.9"
 
 services:
   eureka:
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
     image: prueba2java-eureka:latest
     container_name: eureka-server
     ports:
@@ -18,6 +21,9 @@ services:
       retries: 5
 
   auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
     image: prueba2java-auth:latest
     container_name: auth-service
     ports:
@@ -34,7 +40,9 @@ services:
         condition: service_healthy
 
   project-service:
-    image: prueba2java-project:latest
+    build:
+      context: .
+      dockerfile: project-service/Dockerfile
     container_name: project-service
     ports:
       - "8082:8080"
@@ -50,6 +58,9 @@ services:
         condition: service_healthy
 
   resource-service:
+    build:
+      context: .
+      dockerfile: resource-service/Dockerfile
     image: prueba2java-resource:latest
     container_name: resource-service
     ports:
@@ -66,6 +77,9 @@ services:
         condition: service_healthy
 
   collab-service:
+    build:
+      context: .
+      dockerfile: collab-service/Dockerfile
     image: prueba2java-collab:latest
     container_name: collab-service
     ports:
@@ -82,6 +96,9 @@ services:
         condition: service_healthy
 
   api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
     image: prueba2java-api:latest
     container_name: api-gateway
     ports:
