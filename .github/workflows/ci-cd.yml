@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # --- FASE 1: COMPILACIÓN JAVA ---
+      # --- FASE 1: COMPILACIÓN JAVA (Tu código) ---
       - name: 📥 Checkout del código
         uses: actions/checkout@v3
 
@@ -21,8 +21,7 @@ jobs:
           cache: maven
 
       - name: 🚀 Compilar microservicios con Maven
-        # Usamos el wrapper de Maven para asegurar la versión correcta
-        run: ./mvnw clean package -DskipTests
+        run: mvn clean package -DskipTests
 
       # --- FASE 2: DOCKER HUB ---
       - name: 🐳 Login en Docker Hub
@@ -31,7 +30,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 📦 Build de imágenes Docker
+      - name: 📦 Build y push de imágenes
+        # Aquí construyes y subes las imágenes. El punto (.) indica que use la raíz del proyecto para el contexto.
         run: |
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest -f api-gateway/Dockerfile .
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest -f collab-service/Dockerfile .
@@ -40,14 +40,15 @@ jobs:
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest -f auth-service/Dockerfile .
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest -f eureka-server/Dockerfile .
 
-      - name: ⬆️ Push de imágenes a Docker Hub
-        run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest
+
+
+          # Repite estas líneas para auth-service, resource-service, etc., según necesites actualizar.
 
       # --- FASE 3: DESPLIEGUE EN AWS SWARM ---
       - name: ☁️ Configurar credenciales AWS
@@ -58,27 +59,19 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: 🔄 Desplegar todos los microservicios vía SSM
+      - name: 🔄 Desplegar en Swarm vía SSM
         run: |
           aws ssm send-command \
             --instance-ids ${{ secrets.EC2_BACKEND_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
-            --comment "Actualizar todo el stack Innovatech en Swarm" \
+            --comment "Actualizar microservicios en Swarm" \
             --parameters '{"commands":[
               "set -e",
               
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest",
-              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest",
-              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest",
-              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest",
-              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest",
               
               "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest innovatech-stack_api-gateway",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest innovatech-stack_collab-service",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest innovatech-stack_resource-service",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest innovatech-stack_project-service",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest innovatech-stack_auth-service",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest innovatech-stack_eureka"
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest innovatech-stack_project-service"
             ]}' \
             --output text
