@@ -70,8 +70,16 @@ jobs:
               
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest",
-              
+              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest",
+              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest",
+              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest"
+              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest",
+
               "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest innovatech-stack_api-gateway",
-              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest innovatech-stack_project-service"
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest innovatech-stack_project-service",
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest innovatech-stack_collab-service",
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest innovatech-stack_resource-service",
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest innovatech-stack_auth-service",
+              "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest innovatech-stack_eureka-server"
             ]}' \
             --output text
