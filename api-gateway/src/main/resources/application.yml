@@ -34,11 +34,12 @@ spring:
           filters:
             - StripPrefix=1
         - id: lambda-report-service
-          uri: https://ehhwnfz5czyrav25erh36mpnlq0cvglk.lambda-url.us-east-1.on.aws/
+          uri: https://ehhwnfz5czyrav25erh36mpnlq0cvglk.lambda-url.us-east-1.on.aws
           predicates:
             - Path=/reports/**
           filters:
             - StripPrefix=1
+            - RemoveRequestHeader=Host
 
 eureka:
   client:
