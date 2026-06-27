@@ -38,6 +38,7 @@ spring:
           predicates:
             - Path=/reports/**
           filters:
+            - StripPrefix=1
 
 eureka:
   client:
