@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 // API Gateway que recibe las solicitudes del usuario y enruta hacia los microservicios.
-// Usa Eureka para descubrimiento dinámico de servicios.
+// Usa Eureka para descubrimiento dinámico de servicios
 @SpringBootApplication
 @EnableDiscoveryClient
 public class ApiGatewayApplication {
