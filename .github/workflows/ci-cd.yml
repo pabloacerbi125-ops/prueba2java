@@ -72,7 +72,7 @@ jobs:
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-project:latest",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-collab:latest",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-resource:latest",
-              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest"
+              "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-auth:latest",
               "docker pull ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-eureka:latest",
 
               "docker service update --image ${{ secrets.DOCKERHUB_USERNAME }}/prueba2java-api:latest innovatech-stack_api-gateway",
